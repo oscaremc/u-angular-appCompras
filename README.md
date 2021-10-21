@@ -143,3 +143,81 @@ usamos la siguiente plantilla para impirmir la infomacion que queremos ver en pa
 </table>
 
 
+FLUJO DE RUTAS
+
+creamos un nuevo componente llamado inicio con la siguiente linea de comando en nuestra terminal: 
+
+ng g c inicio 
+
+luego de cargar modificias el archivo inicio.component.html para darle una visual al componente y saber que estoy hay: 
+
+<h3>Bienvenidos a mi Aplicacion Compras App</h3>
+
+en el archivo app.modules.ts debemos importar la propiedad que nos permitira usar el concepto de rutas dentro del proyecto; 
+
+import { Routes, RouterModule } from '@angular/router';
+
+luego se debe agregar a la seccion de imports asi: 
+
+imports: [
+BrowserModule,
+AppRoutingModule,
+RouterModule.forRoot(routes)        //forRoot es metodo que me permite recorresr todas las rutas que tenga la varible (routes)
+],
+
+Creamos la variable routes: 
+
+const routes: Routes = [
+  { path: '', component: InicioComponent},                  // ruta raiz o principal cuando se cargue el proyecto
+  { path: 'proveedores', component: ProveedoresComponent},  // ruta que sigue llamada proveedores
+];
+
+el archivo app.modules.ts debe quedar entonces mas: 
+
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { Routes, RouterModule } from '@angular/router';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { ProveedoresService } from './servicios/proveedores.service';
+import { ProveedoresComponent } from './proveedores/proveedores/proveedores.component';
+import { InicioComponent } from './inicio/inicio.component'
+
+const routes: Routes = [
+  { path: '', component: InicioComponent},
+  { path: 'proveedores', component: ProveedoresComponent},
+];
+
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    ProveedoresComponent,
+    InicioComponent
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    RouterModule.forRoot(routes)
+  ],
+  providers: [ProveedoresService],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+
+
+claro esta para que funcione las ruta lo que debemos hacer ahora es agregar la ruta principal al componente raiz que es app.component.html: 
+
+<div class="container">
+  <router-outlet></router-outlet>       //se ecargara de leer la varible routes en su orden
+</div>
+
+con esto completado debemos cargar el proyecto y ver los siguiente: 
+
+localhost:4200             vemos  el mensaje de bienvenida del componente inicio
+localhost:4200/proveedores vemos  la tabla de la lista proveedores. 
+
+
+
+
