@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, FormBuilder, Validators } from "@angular/forms";
-import { PresupuestosService } from "../../servicios/presupuestos.service";
+import { FormControl, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { PresupuestosService } from '../../servicios/presupuestos.service';
+import { ProveedoresService } from '../../servicios/proveedores.service';
 
 @Component({
   selector: 'app-addpres',
@@ -9,47 +10,57 @@ import { PresupuestosService } from "../../servicios/presupuestos.service";
 })
 export class AddpresComponent implements OnInit {
 
-  presupuestoForm!: FormGroup; 
+  presupuestoForm!: FormGroup;
   presupuesto: any;
   base: any;
-  tipo: any; 
-  iva: any = 0; 
-  total: any = 0; 
+  tipo: any;
+  iva: any = 0;
+  total: any = 0;
 
-  constructor(
-    private pf: FormBuilder,
-    private presupuestoService: PresupuestosService
-    ) { }
+  proveedores: any[] = [];
 
-  ngOnInit(): void {
+  constructor(private pf: FormBuilder,
+              private presupuestoService: PresupuestosService, 
+              private proveedoresService: ProveedoresService) { 
+                this.proveedoresService.getProveedores()
+                .subscribe((proveedores:any) => {
+                  for (const id$ in proveedores) {
+                    const p = proveedores[id$];
+                    p.id$ = id$;
+                    this.proveedores.push(proveedores[id$]);
+                  }
+                })
+               }
+
+  ngOnInit() {
     this.presupuestoForm = this.pf.group({
-      proveedor: ['', Validators.required],
-      fecha: ['', Validators.required],
-      concepto: ['', [Validators.required, Validators.minLength(10)]],
-      base: ['', Validators.required],
-      tipo: ['', Validators.required],
+      proveedor: ['', Validators.required ],
+      fecha: ['', Validators.required ],
+      concepto: ['', [Validators.required, Validators.minLength(10)] ],
+      base: ['', Validators.required ],
+      tipo: ['', Validators.required ],
       iva: this.iva,
-      total: this.total,
+      total: this.total
     });
 
     this.onChanges();
   }
 
-  onChanges(): void{
+  onChanges(): void {
     this.presupuestoForm.valueChanges.subscribe(valor => {
-      this.base = valor.base; 
-      this.tipo = valor.tipo; 
-      this.presupuestoForm.value.iva = this.base * this.tipo; 
+      this.base = valor.base;
+      this.tipo = valor.tipo;
+      this.presupuestoForm.value.iva = this.base * this.tipo;
       this.presupuestoForm.value.total = this.base + (this.base * this.tipo);
-    })
+    });
   }
 
-  onSubmit() {
+  onSubmit(){
     this.presupuesto = this.savePresupuesto();
     this.presupuestoService.postPresupuesto(this.presupuesto)
-      .subscribe((newpres: any) => {
+           .subscribe(newpres => {
 
-      })
+           })
     this.presupuestoForm.reset();
   }
 
@@ -63,7 +74,7 @@ export class AddpresComponent implements OnInit {
       iva: this.presupuestoForm.get('iva')?.value,
       total: this.presupuestoForm.get('total')?.value,
     }
-
     return savePresupuesto;
   }
+
 }

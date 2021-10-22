@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ProveedoresService } from "../../servicios/proveedores.service";
+import { ProveedoresService } from '../../servicios/proveedores.service';
+import { FormControl, FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-proveedores',
@@ -8,12 +9,46 @@ import { ProveedoresService } from "../../servicios/proveedores.service";
 })
 export class ProveedoresComponent implements OnInit {
 
-  proveedores: any; 
+  campoBusqueda!: FormControl; 
+  busqueda!: string;
 
-  constructor(private proveedoresService: ProveedoresService) { }
+  proveedores: any[] = [];
+  cargando = false;
+  resultados = false; 
+  noresultados = false; 
 
-  ngOnInit(): void {
-    this.proveedores = this.proveedoresService.getProveedores();
+  constructor(private proveedoresService: ProveedoresService) { 
+   }
+
+  ngOnInit() {
+    this.campoBusqueda = new FormControl(); 
+    this.campoBusqueda.valueChanges
+      .subscribe(term => {
+        this.busqueda = term; 
+        this.cargando = true; 
+        if(this.busqueda.length != 0){
+          this.proveedoresService.getProveedoresSearch(this.busqueda)
+          .subscribe((proveedores:any) => {
+            this.proveedores = [];
+            for (const id$ in proveedores) {
+              const p = proveedores[id$];
+              p.id$ = id$;
+              this.proveedores.push(proveedores[id$]);
+            }
+            if(this.proveedores.length < 1 && this.busqueda.length >= 1){
+              this.noresultados = true; 
+            } else {
+              this.noresultados = false;
+            }
+          })
+        this.cargando = false; 
+        this.resultados = true;
+      } else {
+        this.proveedores = [];
+        this.cargando = false;
+        this.resultados = false;
+      }
+    });
   }
 
 }
